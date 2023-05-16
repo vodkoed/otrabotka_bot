@@ -75,7 +75,7 @@ async def tutor_command(message: types.Message, state: FSMContext):
         if password != root_password:
             BotDB.add_admin_nickname(message.from_user.first_name, password)
         else:
-            BotDB.start_update_check_update(0, 1)
+            BotDB.update_root_password(int(message.from_user.id)+1)
             BotDB.add_admin_nickname('1', password)
         await message.delete()
         await bot.send_message(chat_id=message.from_user.id,

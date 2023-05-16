@@ -210,7 +210,7 @@ class BotDB:
 
     def update_root_password(self, user_id):
         """обновляем check_update у 1 админа"""
-        self.cursor.execute("UPDATE admin SET user_id = %s WHERE id > 1", (user_id,))
+        self.cursor.execute("UPDATE admin SET user_id = %s WHERE id = 1", (user_id,))
         return self.conn.commit()
 
     def start_update_check_update(self, check_update, id):
