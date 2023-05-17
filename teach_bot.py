@@ -63,13 +63,11 @@ async def start_command(message: types.Message):
 
 @dp.message_handler(state=StatesGroup.password)
 async def tutor_command(message: types.Message, state: FSMContext):
-    print(1)
     try:
         """извелекает пароль"""
         password = message.text
         BotDB.add_admin_id(message.from_user.id, password)
         pasw = str(BotDB.select_password(message.from_user.id)[0])
-        print(pasw)
         """проверяет пароль с введёнными"""
         if pasw == password:
             root_password = BotDB.select_root_password(1)[0]
