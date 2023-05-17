@@ -40,12 +40,21 @@ class BotDB:
 
     def add_admin_day(self, id, days, user_id, check_update):
         """Добавляем день тьютора в базу"""
-        self.cursor.execute("INSERT INTO admin (id, times, days, user_id, nickname, check_update) VALUES (%s, 2, %s, %s, 1, %s)", (id, days, user_id, check_update))
+        self.cursor.execute(
+            "INSERT INTO admin (id, times, days, user_id, nickname, check_update) VALUES (%s, 2, %s, %s, 1, %s)",
+            (id, days, user_id, check_update))
         return self.conn.commit()
 
-    def add_new_password(self, id, password):
+    def add_admin_time2(self, times, user_id):
+        """Добавляем время тьютора в базу"""
+        self.cursor.execute("UPDATE admin SET times = %s WHERE user_id = %s AND times = 2", (times, user_id))
+        return self.conn.commit()
+
+    def add_new_password(self, id, user_id, password, check_update):
         """Добавляем новый пароль для тьютора в базу"""
-        self.cursor.execute("INSERT INTO admin (id, days, times, password, nickname) VALUES (%s, 1, 1, %s, 3)", (id, password))
+        self.cursor.execute(
+            "INSERT INTO admin (id, days, times, password, user_id, nickname, check_update) VALUES (%s, 1, 1, %s, %s, 3, %s)",
+            (id, user_id, password, check_update))
         return self.conn.commit()
 
     def add_time(self, user_id, time):

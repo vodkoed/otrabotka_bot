@@ -106,7 +106,10 @@ async def user_command(message: types.Message):
     need_day = BotDB.select_need_day(message.text)
     user_day = BotDB.select_need_day1(message.from_user.id)[0]
     j = 0
-    while len(need_day) >= j+1:
+    print(need_day)
+    while len(need_day) >= j + 1:
+        print(user_day)
+        print(need_day[j])
         if need_day[j][0] == user_day:
             time_prov = True
         j += 1
