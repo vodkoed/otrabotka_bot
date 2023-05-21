@@ -157,7 +157,8 @@ async def tutor_command(message: types.Message, state: FSMContext):
                     BotDB.update_false_admin(admin_id, '3', admin_id)
 
                     await bot.send_message(message.from_user.id,
-                                           text="Админ добавлен.")
+                                           text="Вы вышли.")
+                    BotDB.delete_all(message.from_user.id)
                 except TypeError:
                     await bot.send_message(message.from_user.id,
                                            text="Вы не заходили")
@@ -281,7 +282,7 @@ async def tutor_command(message: types.Message, state: FSMContext):
                 BotDB.delete_all(message.from_user.id)
                 """бот отправляет сообщение"""
                 await bot.send_message(chat_id=message.from_user.id,
-                                       text="udoleno",
+                                       text="Все ваши дни удалены.",
                                        parse_mode='HTML',
                                        reply_markup=ReplyKeyboardRemove())
                 await bot.send_message(chat_id=message.from_user.id,
