@@ -229,8 +229,16 @@ class BotDB:
 
     def update_admin_day_id(self, id, check_update, days, times, user_id):
         """обновляем выбранное айди"""
-        self.cursor.execute("UPDATE admin SET id = %s, check_update = %s WHERE days = %s AND times = %s AND user_id = %s", (id, check_update, days, times, user_id))
+        self.cursor.execute(
+            "UPDATE admin SET id = %s, check_update = %s WHERE days = %s AND times = %s AND user_id = %s",
+            (id, check_update, days, times, user_id))
         return self.conn.commit()
+
+    def update_false_admin(self, user_id, nickname, id):
+        """обновляем выбранное айди"""
+        self.cursor.execute("UPDATE admin SET user_id = %s, nickname = %s WHERE id = %s", (user_id, nickname, id))
+        return self.conn.commit()
+
     def close(self):
         """Закрываем соединение с БД"""
         self.connection.close()

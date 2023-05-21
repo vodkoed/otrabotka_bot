@@ -30,7 +30,9 @@
 
 Чтобы ввести новый интервал между админами(со страта он = 7) введитие - /new_admins_interval_корневойпароль \\например /new_admins_interval_222
 
-Чтобы добавить нового админа введите - add_new_admin_корневойпароль \\например  /add_new_admin_222
+Чтобы добавить нового админа введите - /add_new_admin_корневойпароль \\например  /add_new_admin_222
+
+чтобы разлогиниться из обычного админа корневому введите - /unlog_корневойпароль \\например  /unlog_222 (учтите все дни этого админа удалятся)
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 config - там содержатся токены
@@ -69,10 +71,6 @@ CREATE TABLE `admin` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
-ALTER TABLE `admin`
-  ADD PRIMARY KEY (`id`);
-
-
 CREATE TABLE `user` (
   `id` int NOT NULL,
   `day` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
@@ -84,8 +82,8 @@ CREATE TABLE `user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
-    ALTER TABLE `user`
-      ADD PRIMARY KEY (`id`);
+ALTER TABLE `user`
+  ADD PRIMARY KEY (`id`);
 
 
 ALTER TABLE `user`

@@ -87,7 +87,7 @@ async def tutor_command(message: types.Message, state: FSMContext):
                                    text=commands)
 
             @dp.message_handler(commands=['new_admins_interval_' + str(root_password)])
-            async def use_command(message: types.Message):
+            async def interval_command(message: types.Message):
                 """удаляет лишние дни(если их больше чем новый интервал позволяет), обновляет айди всего"""
                 global admins_interval
                 last_interval = admins_interval
@@ -134,7 +134,7 @@ async def tutor_command(message: types.Message, state: FSMContext):
                 BotDB.update_check_update(1, 2)
 
             @dp.message_handler(commands=['add_new_admin_' + str(root_password)])
-            async def use_command(message: types.Message):
+            async def new_admin_command(message: types.Message):
                 await message.delete()
                 new_password = message.get_args()
                 """эта функция добавляет нового админа."""
@@ -147,53 +147,74 @@ async def tutor_command(message: types.Message, state: FSMContext):
                 await bot.send_message(message.from_user.id,
                                        text="Админ добавлен.")
 
+            @dp.message_handler(commands=['unlog_' + str(root_password)])
+            async def unlog_command(message: types.Message):
+                await message.delete()
+                try:
+                    admin_id = BotDB.select_admin_self_id(message.from_user.id, message.from_user.first_name)[0]
+                    """эта функция разлогинивает корневого админа из обычного"""
+
+                    BotDB.update_false_admin(admin_id, '3', admin_id)
+
+                    await bot.send_message(message.from_user.id,
+                                           text="Админ добавлен.")
+                except TypeError:
+                    await bot.send_message(message.from_user.id,
+                                           text="Вы не заходили")
+
             @dp.callback_query_handler()
             async def day_command(callback: types.CallbackQuery):
+
                 await callback.message.delete_reply_markup()
                 await callback.message.delete()
+                try:
+                    last_admin_id = int(BotDB.select_last_admin_id(callback.message.chat.id)[0]) + 1
+                    """бот проверяет коллбэк и выбирает нужнею клавиатуру с днём"""
+                    if callback.data == "day1":
+                        day = "Понедельник"
+                        kla = time_kb1
+                    if callback.data == "day2":
+                        day = "Вторник"
+                        kla = time_kb2
+                    if callback.data == "day3":
+                        day = "Среда"
+                        kla = time_kb3
+                    if callback.data == "day4":
+                        day = "Четверг"
+                        kla = time_kb4
+                    if callback.data == "day5":
+                        day = "Пятница"
+                        kla = time_kb5
+                    if callback.data == "day6":
+                        day = "Суббота"
+                        kla = time_kb6
+                    if callback.data == "day7":
+                        day = "Воскресенье"
+                        kla = time_kb7
+                    if callback.data == "day1" or "day2" or "day3" or "day4" or "day5" or "day6" or "day7":
+                        count_days = int(BotDB.select_admin_count(callback.message.chat.id, '1')[0])
+                        """если добавленных дней больше интервала то добавлять больше нельзя, если нужно изменить максимальное
+                         количество дней то измените инервал с помощью команды на нужное число"""
+                        if count_days > admins_interval:
+                            await bot.send_message(callback.message.chat.id,
+                                                   text="место кончилось")
+                            BotDB.delete_last_day(BotDB.select_last_admin_id(message.from_user.id))
+                            await bot.send_message(chat_id=message.from_user.id,
+                                                   text=commands)
+                        """Бот высылыает сообщение с кнопками времени"""
+                        if count_days <= admins_interval:
+                            await bot.send_message(callback.message.chat.id,
+                                                   text=day,
+                                                   reply_markup=kla)
+                            await bot.send_message(chat_id=message.from_user.id,
+                                                   text="Выберите время")
 
-                """бот проверяет коллбэк и выбирает нужнею клавиатуру с днём"""
-                if callback.data == "day1":
-                    day = "Понедельник"
-                    kla = time_kb1
-                if callback.data == "day2":
-                    day = "Вторник"
-                    kla = time_kb2
-                if callback.data == "day3":
-                    day = "Среда"
-                    kla = time_kb3
-                if callback.data == "day4":
-                    day = "Четверг"
-                    kla = time_kb4
-                if callback.data == "day5":
-                    day = "Пятница"
-                    kla = time_kb5
-                if callback.data == "day6":
-                    day = "Суббота"
-                    kla = time_kb6
-                if callback.data == "day7":
-                    day = "Воскресенье"
-                    kla = time_kb7
-                if callback.data == "day1" or "day2" or "day3" or "day4" or "day5" or "day6" or "day7":
-                    count_days = int(BotDB.select_admin_count(callback.message.chat.id, '1')[0])
-                    """если добавленных дней больше интервала то добавлять больше нельзя, если нужно изменить максимальное
-                     количество дней то измените инервал с помощью команды на нужное число"""
-                    if count_days > admins_interval:
-                        await bot.send_message(callback.message.chat.id,
-                                               text="место кончилось")
-                        BotDB.delete_last_day(BotDB.select_last_admin_id(message.from_user.id))
-                        await bot.send_message(chat_id=message.from_user.id,
-                                               text=commands)
-                    """Бот высылыает сообщение с кнопками времени"""
-                    if count_days <= admins_interval:
-                        await bot.send_message(callback.message.chat.id,
-                                               text=day,
-                                               reply_markup=kla)
-                        await bot.send_message(chat_id=message.from_user.id,
-                                               text="Выберите время")
-                        last_admin_id = int(BotDB.select_last_admin_id(callback.message.chat.id)[0]) + 1
-                        BotDB.add_admin_day(str(last_admin_id), day, callback.message.chat.id, 1)
-                        await StatesGroup.time.set()
+                            BotDB.add_admin_day(str(last_admin_id), day, callback.message.chat.id, 1)
+                            await StatesGroup.time.set()
+                except TypeError:
+                    await bot.send_message(chat_id=message.from_user.id,
+                                           text="Нельзя добавлять дни корневому админу! Если хотите добавить себе дни "
+                                                "войдите в аккаунт не корневого админа.")
 
             @dp.message_handler(state=StatesGroup.time)
             async def time_command(message: types.Message):
