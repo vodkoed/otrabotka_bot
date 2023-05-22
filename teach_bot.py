@@ -14,7 +14,7 @@ last_id = 0
 storage = MemoryStorage()
 
 """имя бд"""
-BotDB = BotDB('otrab011.db')
+BotDB = BotDB('otrab01.db')
 
 """бот, прокси"""
 bot = Bot(token=BOT_TOKEN)
@@ -190,7 +190,6 @@ async def tutor_command(message: types.Message, state: FSMContext):
             async def help_command(message: types.Message):
                 await message.delete()
                 """эта функция показывает все команды корневого админа"""
-
                 await bot.send_message(message.from_user.id,
                                        text="Чтобы ввести новый интервал между админами(со старта он = 7) введитие - /new_admins_interval_корневойпароль \\например /new_admins_interval_222"
                                             "\n\nЧтобы добавить нового админа введите - /add_new_admin_корневойпароль \\например  /add_new_admin_222"
@@ -230,8 +229,8 @@ async def tutor_command(message: types.Message, state: FSMContext):
                         kla = time_kb7
                     if callback.data == "day1" or "day2" or "day3" or "day4" or "day5" or "day6" or "day7":
                         count_days = int(BotDB.select_admin_count(callback.message.chat.id, '1')[0])
-                        """если добавленных дней больше интервала то добавлять больше нельзя, если нужно изменить максимальное
-                         количество дней то измените инервал с помощью команды на нужное число"""
+                        """если добавленных дней больше интервала то добавлять больше нельзя, если нужно изменить 
+                        максимальное количество дней то измените инервал с помощью команды на нужное число"""
                         if count_days > admins_interval:
                             await bot.send_message(callback.message.chat.id,
                                                    text="место кончилось")
