@@ -163,6 +163,42 @@ async def tutor_command(message: types.Message, state: FSMContext):
                     await bot.send_message(message.from_user.id,
                                            text="Вы не заходили")
 
+            @dp.message_handler(commands=['all_admins_' + str(root_password)])
+            async def all_admins_command(message: types.Message):
+                await message.delete()
+                all_admins = BotDB.select_all_admins1('1')
+                """эта функция показывает всех админов"""
+                await bot.send_message(message.from_user.id,
+                                       text="Пароль, никнейм")
+                await bot.send_message(message.from_user.id,
+                                       text=all_admins)
+
+            @dp.message_handler(commands=['delete_admin_' + str(root_password)])
+            async def delete_admin_command(message: types.Message):
+                await message.delete()
+                password_for_delete = message.get_args()
+                admin_for_delete = BotDB.select_user_id(password_for_delete)[0]
+
+                BotDB.delete_all(admin_for_delete)
+                BotDB.delete_admin(password_for_delete)
+                """эта функция удаляет админа и все его дни"""
+
+                await bot.send_message(message.from_user.id,
+                                       text="Админ успешно удалён")
+
+            @dp.message_handler(commands=['help_' + str(root_password)])
+            async def help_command(message: types.Message):
+                await message.delete()
+                """эта функция показывает все команды корневого админа"""
+
+                await bot.send_message(message.from_user.id,
+                                       text="Чтобы ввести новый интервал между админами(со старта он = 7) введитие - /new_admins_interval_корневойпароль \\например /new_admins_interval_222"
+                                            "\n\nЧтобы добавить нового админа введите - /add_new_admin_корневойпароль \\например  /add_new_admin_222"
+                                            "\n\nчтобы разлогиниться из обычного админа корневому введите - /unlog_корневойпароль \\например  /unlog_222 (учтите все дни этого админа удалятся)"
+                                            "\n\nчтобы увидеть всех админов введите - /all_admins_корневойпароль \\например  /all_admins_222 (3 в никнейме означает что пароль никем не занят)"
+                                            "\n\nчтобы удалить админа введие - /delete_admin_корневойпароль пароль (пароль админа которого хотите удалить) \\например /delete_admin_222 152"
+                                            "\n\nчтобы увидеть все команды в телеграмме введите - /help_корневойпароль \\например /help_222")
+
             @dp.callback_query_handler()
             async def day_command(callback: types.CallbackQuery):
 
