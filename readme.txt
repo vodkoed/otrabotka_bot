@@ -107,7 +107,7 @@ CREATE TABLE `time` (
 !!!!добавление данных в таблицы!!!!
 
 INSERT INTO `admin` (`id`, `days`, `times`, `password`, `user_id`, `nickname`, check_update) VALUES
-(1, NULL, NULL, 'нужный корневой пароль', 'NULL', 'NULL', 0); //Корневой пароль, с помощью него добавляются новые пароли
+(1, NULL, NULL, 'нужный корневой пароль', '1', '1', 0); //Корневой пароль, с помощью него добавляются новые пароли
 
 INSERT INTO `admin` (`id`, `days`, `times`, `password`, `user_id`, `nickname`, check_update) VALUES
 (2, '1', '1', '3342', '2', '3', 0);   // если лень вводить 1 админа
