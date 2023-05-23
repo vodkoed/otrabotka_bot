@@ -99,8 +99,8 @@ ALTER TABLE `user`
 
 CREATE TABLE `time` (
   `day` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `time1` varchar(10) NOT NULL,
-  `time2` varchar(10) NOT NULL
+  `time1` varchar(10) DEFAULT NULL,
+  `time2` varchar(10) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
