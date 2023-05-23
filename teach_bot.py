@@ -288,10 +288,6 @@ async def tutor_command(message: types.Message, state: FSMContext):
             @dp.message_handler(commands=['select_all'])
             async def select_command(message: types.Message):
                 """показывает все дни тьютора"""
-                await bot.send_message(chat_id=message.from_user.id,
-                                       text="/end",
-                                       parse_mode='HTML',
-                                       reply_markup=ReplyKeyboardRemove())
                 days_count = str(BotDB.select_admin_count_for_all_select(message.from_user.id)[0])
                 if days_count == '1':
                     await bot.send_message(chat_id=message.from_user.id,
