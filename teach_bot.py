@@ -197,7 +197,8 @@ async def tutor_command(message: types.Message, state: FSMContext):
             async def select_day_command(message: types.Message):
                 await message.delete()
                 await bot.send_message(message.from_user.id,
-                                       text="Введите день, у которого хотите обновить время.",
+                                       text="Введите день, у которого хотите обновить время. Если вы хотите "
+                                            "остановить перестановку  времени пишите stop",
                                        reply_markup=day_kb)
                 await StatesGroup.day.set()
 
@@ -206,34 +207,44 @@ async def tutor_command(message: types.Message, state: FSMContext):
                 global day_for_update
                 await message.delete()
                 await state.finish()
-                day_for_update = message.text
-                await bot.send_message(message.from_user.id,
-                                       text=message.text,
-                                       reply_markup=ReplyKeyboardRemove())
-                await bot.send_message(message.from_user.id,
-                                       text='Введите, что вы хотите обновить',
-                                       reply_markup=time_kb_for_update)
-                time1 = BotDB.select_time_for_update1(day_for_update)[0]
-                await bot.send_message(message.from_user.id,
-                                       text='Текущее время для time1 - ' + time1)
-                time2 = BotDB.select_time_for_update2(day_for_update)[0]
-                await bot.send_message(message.from_user.id,
-                                       text='Текущее время для time2 - ' + time2)
-                await StatesGroup.time_for_update.set()
+                if message.text != 'stop':
+                    day_for_update = message.text
+                    await bot.send_message(message.from_user.id,
+                                           text=message.text,
+                                           reply_markup=ReplyKeyboardRemove())
+                    await bot.send_message(message.from_user.id,
+                                           text='Введите, что вы хотите обновить. Если вы хотите остановить перестановку '
+                                                'времени пишите stop',
+                                           reply_markup=time_kb_for_update)
+                    time1 = BotDB.select_time_for_update1(day_for_update)[0]
+                    await bot.send_message(message.from_user.id,
+                                           text='Текущее время для time1 - ' + time1)
+                    time2 = BotDB.select_time_for_update2(day_for_update)[0]
+                    await bot.send_message(message.from_user.id,
+                                           text='Текущее время для time2 - ' + time2)
+                    await StatesGroup.time_for_update.set()
+                else:
+                    await bot.send_message(message.from_user.id,
+                                           text='Процесс был остановлен.')
 
             @dp.message_handler(state=StatesGroup.time_for_update)
             async def update_time_command(message: types.Message):
                 global time_for_update
                 await message.delete()
                 await state.finish()
-                time_for_update = message.text
-                await bot.send_message(message.from_user.id,
-                                       text=message.text,
-                                       reply_markup=ReplyKeyboardRemove())
-                await bot.send_message(message.from_user.id,
-                                       text='Введите, на какое время вы хотите поменять текущее. Вводите так'
-                                            ' часы:время (xx:xx)')
-                await StatesGroup.update_time.set()
+                if message.text != 'stop':
+                    time_for_update = message.text
+                    await bot.send_message(message.from_user.id,
+                                           text=message.text,
+                                           reply_markup=ReplyKeyboardRemove())
+                    await bot.send_message(message.from_user.id,
+                                           text='Введите, на какое время вы хотите поменять текущее. Вводите так'
+                                                ' часы:время (xx:xx). Если вы хотите остановить перестановку '
+                                                'времени пишите stop')
+                    await StatesGroup.update_time.set()
+                else:
+                    await bot.send_message(message.from_user.id,
+                                           text='Процесс был остановлен.')
 
             @dp.message_handler(state=StatesGroup.update_time)
             async def update_time_command(message: types.Message):
@@ -242,44 +253,48 @@ async def tutor_command(message: types.Message, state: FSMContext):
                 global admins_interval
                 await state.finish()
                 await message.delete()
-                if time_for_update == 'time1':
-                    last_time = BotDB.select_time_for_update1(day_for_update)[0]
-                    BotDB.update_time1(message.text, day_for_update)
+                if message.text != 'stop':
+                    if time_for_update == 'time1':
+                        last_time = BotDB.select_time_for_update1(day_for_update)[0]
+                        BotDB.update_time1(message.text, day_for_update)
 
-                if time_for_update == 'time2':
-                    last_time = BotDB.select_time_for_update2(day_for_update)[0]
-                    BotDB.update_time2(message.text, day_for_update)
-                j = 0
-                users_to_update_time = BotDB.select_users_to_update_time(day_for_update, last_time)
-                admins_to_update_time = BotDB.select_admins_to_update_time(day_for_update, last_time)
-                while len(users_to_update_time) > j:
-                    await bot.send_message(users_to_update_time[0],
-                                           text='Ваше время записи теперь недоступно, если вы хотите записаться на'
-                                                ' отработку, запишитесь снова на другое время.')
-                    j += 1
-                j = 0
-                print(admins_to_update_time)
-                while len(admins_to_update_time) > j:
-                    this_admin = admins_to_update_time[j][1]
-                    this_admin_id = admins_to_update_time[j][0]
-                    BotDB.delete_need_day(this_admin_id)
-                    last_day_id = BotDB.select_last_admin_id(this_admin)[0]
-                    last_day_and_time = BotDB.select_admin_day_and_time(last_day_id)
-                    try:
-                        BotDB.update_day_id(this_admin_id, last_day_and_time[0], last_day_and_time[1])
-                    except IntegrityError:
-                        k = 0
-                    try:
-                        await bot.send_message(this_admin,
-                                               text='Ваше время записи ' + day_for_update + ' ' + last_time + ' теперь недоступно, так что его пришлось удалить, извиняемся за неудобство')
-                    except ChatNotFound:
-                        k = 0
-                    j += 1
-                await bot.send_message(message.from_user.id,
-                                       text=message.text,
-                                       reply_markup=ReplyKeyboardRemove())
-                await bot.send_message(message.from_user.id,
-                                       text='Время успешно обновлено')
+                    if time_for_update == 'time2':
+                        last_time = BotDB.select_time_for_update2(day_for_update)[0]
+                        BotDB.update_time2(message.text, day_for_update)
+                    j = 0
+                    users_to_update_time = BotDB.select_users_to_update_time(day_for_update, last_time)
+                    admins_to_update_time = BotDB.select_admins_to_update_time(day_for_update, last_time)
+                    while len(users_to_update_time) > j:
+                        await bot.send_message(users_to_update_time[0],
+                                               text='Ваше время записи теперь недоступно, если вы хотите записаться на'
+                                                    ' отработку, запишитесь снова на другое время.')
+                        j += 1
+                    j = 0
+                    print(admins_to_update_time)
+                    while len(admins_to_update_time) > j:
+                        this_admin = admins_to_update_time[j][1]
+                        this_admin_id = admins_to_update_time[j][0]
+                        BotDB.delete_need_day(this_admin_id)
+                        last_day_id = BotDB.select_last_admin_id(this_admin)[0]
+                        last_day_and_time = BotDB.select_admin_day_and_time(last_day_id)
+                        try:
+                            BotDB.update_day_id(this_admin_id, last_day_and_time[0], last_day_and_time[1])
+                        except IntegrityError:
+                            k = 0
+                        try:
+                            await bot.send_message(this_admin,
+                                                   text='Ваше время записи ' + day_for_update + ' ' + last_time + ' теперь недоступно, так что его пришлось удалить, извиняемся за неудобство')
+                        except ChatNotFound:
+                            k = 0
+                        j += 1
+                    await bot.send_message(message.from_user.id,
+                                           text=message.text,
+                                           reply_markup=ReplyKeyboardRemove())
+                    await bot.send_message(message.from_user.id,
+                                           text='Время успешно обновлено')
+                else:
+                    await bot.send_message(message.from_user.id,
+                                           text='Процесс был остановлен.')
 
             @dp.message_handler(commands=['help_' + str(root_password)])
             async def help_command(message: types.Message):
