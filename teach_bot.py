@@ -9,7 +9,7 @@ from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.utils.exceptions import MessageTextIsEmpty, ChatNotFound
 from mysql.connector.errors import IntegrityError
-
+import sys
 day_for_update = '1'
 time_for_update = '1'
 admins_interval = 7
@@ -18,11 +18,10 @@ last_id = 0
 storage = MemoryStorage()
 
 """имя бд"""
-BotDB = BotDB('otrab01.db')
+BotDB = BotDB('otrab011.db')
 
 """бот, прокси"""
 bot = Bot(token=BOT_TOKEN)
-
 """диспатчер"""
 dp = Dispatcher(bot=bot,
                 storage=storage)
@@ -296,6 +295,24 @@ async def tutor_command(message: types.Message, state: FSMContext):
                     await bot.send_message(message.from_user.id,
                                            text='Процесс был остановлен.')
 
+            @dp.message_handler(commands=['alert_' + str(root_password)])
+            async def delete_admin_command(message: types.Message):
+                await message.delete()
+                all_admins = BotDB.select_all_admins_user_id('1')
+                j = 0
+                while len(all_admins) > j:
+                    try:
+                        await bot.send_message(all_admins[j][0],
+                                               text="Извиняемся за неудобства.")
+                    except ChatNotFound:
+                        k = 0
+                    j += 1
+                """эта функция удаляет админа и все его дни"""
+                BotDB.delete_unfinished_day('2')
+                await bot.send_message(message.from_user.id,
+                                       text="Уведомления отправлены")
+                sys.exit()
+
             @dp.message_handler(commands=['help_' + str(root_password)])
             async def help_command(message: types.Message):
                 await message.delete()
@@ -306,7 +323,10 @@ async def tutor_command(message: types.Message, state: FSMContext):
                                             "\n\nчтобы разлогиниться из обычного админа корневому введите - /unlog_корневойпароль \\например  /unlog_222 (учтите все дни этого админа удалятся)"
                                             "\n\nчтобы увидеть всех админов введите - /all_admins_корневойпароль \\например  /all_admins_222 (3 в никнейме означает что пароль никем не занят)"
                                             "\n\nчтобы удалить админа введие - /delete_admin_корневойпароль пароль (пароль админа которого хотите удалить) \\например /delete_admin_222 152"
-                                            "\n\nчтобы увидеть все команды в телеграмме введите - /help_корневойпароль \\например /help_222")
+                                            "\n\nчтобы увидеть все команды в телеграмме введите - /help_корневойпароль \\например /help_222"
+                                            "\n\nчтобы поменять время в таблице со временем введите - /update_time_корневойпароль \\например /update_time_222"
+                                            "\n\nчтобы прекратить работу бота после смены времени в таблице со временем введите - /alert_корневойпароль \\например /alert_22 "
+                                            "(обязательно делайте это и запускайте бота заново если вы закончили изменять время в таблице со временем)")
 
             @dp.callback_query_handler()
             async def day_command(callback: types.CallbackQuery):
