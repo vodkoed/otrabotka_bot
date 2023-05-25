@@ -18,7 +18,7 @@ last_id = 0
 storage = MemoryStorage()
 
 """имя бд"""
-BotDB = BotDB('otrab011.db')
+BotDB = BotDB('otrab01.db')
 
 """бот, прокси"""
 bot = Bot(token=BOT_TOKEN)
