@@ -10,7 +10,7 @@ class BotDB:
         self.conn = mysql.connector.connect(user='root',
                                             host='127.0.0.1',
                                             password='',
-                                            database='otrab01')
+                                            database='otrab011')
         self.cursor = self.conn.cursor(buffered=True)
 
     def user_exists(self, user_id):
@@ -99,7 +99,7 @@ class BotDB:
         return self.cursor.fetchone()
 
     def select_user_id(self, password):
-        """достаём пароль тьютора из бд"""
+        """достаём из бд user_id админа для удаления"""
         self.cursor.execute("SELECT user_id FROM admin WHERE password = %s LIMIT 1", (password,))
         return self.cursor.fetchone()
 
@@ -192,7 +192,7 @@ class BotDB:
         return self.cursor.fetchone()
 
     def select_admin_day_and_time(self, id):
-        """достаём из бд последний день тьютора"""
+        """достаём из бд день и время выбранного айди"""
         self.cursor.execute("SELECT days, times FROM admin WHERE id = %s", (id,))
         return self.cursor.fetchone()
 
@@ -211,8 +211,13 @@ class BotDB:
         self.cursor.execute("SELECT id FROM admin WHERE nickname != %s", (nickname,))
         return self.cursor.fetchall()
 
+    def select_all_admins_user_id(self, nickname):
+        """достаём из бд юзер_айди всех админов"""
+        self.cursor.execute("SELECT user_id FROM admin WHERE nickname != %s", (nickname,))
+        return self.cursor.fetchall()
+
     def select_all_admins1(self, nickname):
-        """достаём из бд айди всех админов"""
+        """достаём из бд всех админов и сортируем их"""
         self.cursor.execute("SELECT password, nickname FROM admin WHERE nickname != %s", (nickname,))
         output_text = '\n'.join([', '.join(row) for row in self.cursor.fetchall()])
         return output_text
@@ -229,12 +234,12 @@ class BotDB:
         return output_text
 
     def select_users_to_update_time(self, day, time):
-        """достаём из бд количество админов"""
+        """достаём из бд корневым админом время для резидентов"""
         self.cursor.execute("SELECT user_id FROM user WHERE day = %s AND time = %s", (day, time))
         return self.cursor.fetchall()
 
     def select_admins_to_update_time(self, days, times):
-        """достаём из бд количество админов"""
+        """достаём из бд обновлённое корневым админом время тьюторов"""
         self.cursor.execute("SELECT id, user_id FROM admin WHERE days = %s AND times = %s", (days, times))
         return self.cursor.fetchall()
 
@@ -244,23 +249,18 @@ class BotDB:
         return self.conn.commit()
 
     def delete_admin(self, password):
-        """удаляем все дни и время тьютора"""
+        """удаляем тьютора"""
         self.cursor.execute("DELETE FROM admin WHERE password = %s", (password,))
         return self.conn.commit()
 
-    def update_time_user(self, user_id):
-        """удаляем все дни и время тьютора"""
-        self.cursor.execute("UPDATE user SET time = %s WHERE user_id = %s", (user_id,))
-        return self.conn.commit()
-
-    def delete_last_day(self, id):
-        """удаляем дни и время тьютора"""
-        self.cursor.execute("DELETE FROM admin WHERE id = %s", (id,))
-        return self.conn.commit()
-
     def delete_need_day(self, id):
-        """удаляем дни и время тьютора"""
+        """удаляем выбранный день тьютора"""
         self.cursor.execute("DELETE FROM admin WHERE id = %s", (id,))
+        return self.conn.commit()
+
+    def delete_unfinished_day(self, times):
+        """удаляем незаконченные дни"""
+        self.cursor.execute("DELETE FROM admin WHERE times = %s", (times,))
         return self.conn.commit()
 
     def update_check_update(self, check_update, id):
@@ -269,7 +269,7 @@ class BotDB:
         return self.conn.commit()
 
     def update_root_password(self, user_id):
-        """обновляем check_update у 1 админа"""
+        """обновляем user_id у корневого админа"""
         self.cursor.execute("UPDATE admin SET user_id = %s WHERE id = 1", (user_id,))
         return self.conn.commit()
 
@@ -286,17 +286,17 @@ class BotDB:
         return self.conn.commit()
 
     def update_false_admin(self, user_id, nickname, id):
-        """обновляем выбранное айди"""
+        """обнуляем фейкового админа"""
         self.cursor.execute("UPDATE admin SET user_id = %s, nickname = %s WHERE id = %s", (user_id, nickname, id))
         return self.conn.commit()
 
     def update_time1(self, time1, day):
-        """обновляем выбранное айди"""
+        """обновляем выбранное тайм1"""
         self.cursor.execute("UPDATE time SET time1 = %s WHERE day = %s", (time1, day))
         return self.conn.commit()
 
     def update_time2(self, time2, day):
-        """обновляем выбранное айди"""
+        """обновляем выбранное тайм2"""
         self.cursor.execute("UPDATE time SET time2 = %s WHERE day = %s", (time2, day))
         return self.conn.commit()
 

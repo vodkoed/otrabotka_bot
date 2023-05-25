@@ -110,7 +110,7 @@ async def tutor_command(message: types.Message, state: FSMContext):
                     count_records = BotDB.select_admin_count(user_id, '1')[0]
                     delete_records = count_records
                     while delete_records - int(admins_interval) > 0:
-                        BotDB.delete_last_day(BotDB.select_last_admin_id(user_id)[0])
+                        BotDB.delete_need_day(BotDB.select_last_admin_id(user_id)[0])
                         delete_records -= 1
                     delete_scroll += 1
 
@@ -363,7 +363,7 @@ async def tutor_command(message: types.Message, state: FSMContext):
                         if count_days > admins_interval:
                             await bot.send_message(callback.message.chat.id,
                                                    text="место кончилось")
-                            BotDB.delete_last_day(BotDB.select_last_admin_id(message.from_user.id))
+                            BotDB.delete_need_day(BotDB.select_last_admin_id(message.from_user.id))
                             await bot.send_message(chat_id=message.from_user.id,
                                                    text=commands)
                         """Бот высылыает сообщение с кнопками времени"""
@@ -408,7 +408,7 @@ async def tutor_command(message: types.Message, state: FSMContext):
                                            text='Не балуйтесь со временем! Начинайте выбор дня сначала.',
                                            reply_markup=day_ikb)
                     """Удаляет день без времени"""
-                    BotDB.delete_last_day(BotDB.select_last_admin_id(message.from_user.id)[0])
+                    BotDB.delete_need_day(BotDB.select_last_admin_id(message.from_user.id)[0])
 
             @dp.message_handler(commands=['add_day'])
             async def add_command(message: types.Message):
