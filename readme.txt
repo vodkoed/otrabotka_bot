@@ -103,8 +103,8 @@ ALTER TABLE `user`
 
 CREATE TABLE `time` (
   `day` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `time1` varchar(10) DEFAULT NULL,
-  `time2` varchar(10) DEFAULT NULL
+  `time1` varchar(20) DEFAULT NULL,
+  `time2` varchar(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
@@ -114,7 +114,7 @@ INSERT INTO `admin` (`id`, `days`, `times`, `password`, `user_id`, `nickname`, c
 (1, NULL, NULL, 'нужный корневой пароль', '1', '1', 0); //Корневой пароль, с помощью него добавляются новые пароли
 
 INSERT INTO `admin` (`id`, `days`, `times`, `password`, `user_id`, `nickname`, check_update) VALUES
-(2, '1', '1', '3342', '2', '3', 0);   // если лень вводить 1 админа
+(2, '1', '1', 'нужный пароль', '2', '3', 0);   // если лень вводить 1 админа
 
 !!!Время нужно вставлять через двоеточие воттак(часы:минуты)(если времени нет, то вставляйте вместо 'xx:xx' - 'NULL')!!!
 INSERT INTO `time` (`day`, `time1`, `time2`) VALUES
