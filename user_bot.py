@@ -7,6 +7,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import StatesGroup, State
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from mysql.connector.errors import DataError
+import sys
 """память машины состояний"""
 storage = MemoryStorage()
 
@@ -20,7 +21,7 @@ bot = Bot(token=BOT_TOKEN1)
 dp = Dispatcher(bot=bot,
                 storage=storage)
 
-
+root_password = BotDB.select_root_password(1)[0]
 """создание кнопок времени ко всем дням исключая пустое время"""
 day_mas = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье']
 kb_mas = [time_kb1, time_kb2, time_kb3, time_kb4, time_kb5, time_kb6, time_kb7]
@@ -178,6 +179,13 @@ async def user_command(message: types.Message, state: FSMContext):
                                text="Введите номер вашей группы заново, сообщение слишком длинное.",
                                parse_mode='HTML',
                                reply_markup=ReplyKeyboardRemove())
+
+
+@dp.message_handler(commands=['alert_' + str(root_password)])
+async def delete_admin_command(message: types.Message):
+    await bot.send_message(message.from_user.id,
+                           text="Уведомления отправлены")
+    sys.exit()
 
 
 if __name__ == "__main__":

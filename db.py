@@ -1,6 +1,6 @@
 """import MySQLdb"""
 import mysql.connector
-'python -m pip install --upgrade pip'
+
 
 
 class BotDB:
@@ -209,6 +209,11 @@ class BotDB:
     def select_all_admins(self, nickname):
         """достаём из бд айди всех админов"""
         self.cursor.execute("SELECT id FROM admin WHERE nickname != %s", (nickname,))
+        return self.cursor.fetchall()
+
+    def select_all_users(self):
+        """достаём из бд айди всех админов"""
+        self.cursor.execute("SELECT user_id FROM admin", ())
         return self.cursor.fetchall()
 
     def select_all_admins_user_id(self, nickname):
